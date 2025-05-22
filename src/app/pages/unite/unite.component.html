@@ -4,6 +4,7 @@
     <span class="site-name">Gestion des parcs des équipements</span>
   </div>
 
+
   <div class="menu-center">
     <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
     <a class="menu-button" (click)="navigateTo('/equipment')">Équipement</a>
@@ -11,25 +12,28 @@
     <div class="dropdown">
       <button class="menu-button">Mouvement</button>
       <div class="dropdown-content">
-        <a href="/reforme">Réforme</a>
-        <a href="/reaffectation">Réaffectation</a>
         <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
       </div>
     </div>
 
     <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
       <button class="menu-button">Table de Codification</button>
-      <div class="dropdown-content">
-        <a href="/unite">Unité</a>
-        <a href="/organe">Organe</a>
-        <a href="/marque">Marque</a>
-        <a href="/categorie">Catégorie</a>
-        <a href="/typeeq">Type</a>
+      <div class="dropdown-content"> 
         <a href="/caracteristique">Caractéristique</a>
-        <a href="/groupeidentique">Groupe Identique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
       </div>
     </div>
   </div>
+
 
 
   <div class="profile" (click)="profileOpen = !profileOpen">
@@ -58,7 +62,7 @@
       </button>
   
       <div class="spacer"></div>
-      <button class="btn orange" (click)="openForm()">+ Ajouter Unité</button>
+      <button class="btn orange btn-ajouter" (click)="openForm()">+ Ajouter Unité</button>
     </div>
   
     <h2 class="header">
@@ -102,29 +106,7 @@
         </tr>
       </tbody>
     </table>
-    <!-- Modal de suppression -->
-<div class="modal" *ngIf="showDeleteConfirmUnite">
-  <div class="form">
-    <h3>Confirmer la suppression</h3>
-    <p>Voulez-vous vraiment supprimer cette unité ?</p>
-    <div class="actions">
-      <button class="btn orange" (click)="confirmDeleteUnite()">Supprimer</button>
-      <button class="btn grey" (click)="cancelDeleteUnite()">Annuler</button> 
-    </div>
-  </div>
-</div>
-
-    <!--  MODALE DECONNEXION -->
-    <div class="modal" *ngIf="showLogoutConfirm">
-      <div class="form">
-        <h3>Déconnexion</h3>
-        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
-        <div class="actions">
-          <button class="btn orange" (click)="confirmLogout()">Oui</button>
-          <button class="btn grey" (click)="cancelLogout()"> Non</button>
-        </div>
-      </div>
-    </div>
+  
     <div class="modal" *ngIf="showForm">
         <div class="form">
             <h3>{{ selectedUnite ? 'Modifier' : 'Ajouter' }} une Unité</h3>
@@ -170,8 +152,8 @@
             </div>
       
             <div class="actions">
-              <button type="button" class="btn orange" (click)="saveUnite()">💾 Enregistrer</button>
-              <button type="button" class="btn grey" (click)="closeForm()">❌ Annuler</button>
+              <button type="button" class="btn orange" (click)="saveUnite()"> Enregistrer</button>
+              <button type="button" class="btn grey" (click)="closeForm()">Annuler</button>
             </div>
           </form>
         </div>
@@ -179,4 +161,26 @@
       
   </div>
   
-  
+    <!-- Modal de suppression -->
+<div class="modal" *ngIf="showDeleteConfirmUnite">
+  <div class="form">
+    <h3>Confirmer la suppression</h3>
+    <p>Voulez-vous vraiment supprimer cette unité ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmDeleteUnite()">Supprimer</button>
+      <button class="btn grey" (click)="cancelDeleteUnite()">Annuler</button> 
+    </div>
+  </div>
+</div>
+
+    <!--  MODALE DECONNEXION -->
+    <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>

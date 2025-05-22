@@ -104,9 +104,8 @@
     </select>
   </form>
 
-  <div class="dialog-actions">
-    <button type="button" class="grey" (click)="close()">Annuler</button>
-    <button
+  <div class="dialog-actions"> 
+     <button
       type="button"
       class="orange"
       [disabled]="userForm.invalid"
@@ -114,5 +113,7 @@
     >
       {{ mode === 'add' ? 'Ajouter' : 'Enregistrer' }}
     </button>
+    <button type="button" class="grey" (click)="close()">Annuler</button>
+  
   </div>
 </div>

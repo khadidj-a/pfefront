@@ -427,4 +427,8 @@ table td:last-child {
   .actions .btn {
     flex: 1;
   }
+  .btn-ajouter {
+    min-width: 190px; /* ou width: 190px pour fixer complètement */
+    text-align: center;
+  }
   

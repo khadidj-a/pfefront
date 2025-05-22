@@ -32,10 +32,10 @@ export class ReaffectationService {
   }
 
 
-  getAllEquipements(): Observable<{ idEqpt: number; design: string }[]> {
+  getAllEquipements(): Observable<{ idEqpt: number; design: string ;position_physique?: string }[]> {
     return this.http.get<{ idEqpt: number; design: string }[]>(`http://localhost:5186/api/Equipement`);
   }
-  getEquipementsNonReformes(): Observable<{ idEqpt: number; design: string }[]> {
+  getEquipementsNonReformes(): Observable<{ idEqpt: number; design: string ;position_physique?: string }[]> {
     return this.http.get<{ idEqpt: number; design: string }[]>(
       'http://localhost:5186/api/Equipement/non-reformes'
     );

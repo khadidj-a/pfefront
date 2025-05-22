@@ -50,10 +50,10 @@ export class ReformeService {
   getreformeCount(): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/count`);
   }
-  getAllEquipements(): Observable<{ idEqpt: number; design: string }[]> {
+  getAllEquipements(): Observable<{ idEqpt: number; design: string;uniteDesignation?: string;position_physique?: string  }[]> {
     return this.http.get<{ idEqpt: number; design: string }[]>('http://localhost:5186/api/Equipement');
   }
-  getEquipementsNonReformes(): Observable<{ idEqpt: number; design: string }[]> {
+  getEquipementsNonReformes(): Observable<{ idEqpt: number; design: string;uniteDesignation?: string;position_physique?: string  }[]> {
     return this.http.get<{ idEqpt: number; design: string }[]>(
       'http://localhost:5186/api/Equipement/non-reformes'
     );

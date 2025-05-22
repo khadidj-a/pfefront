@@ -18,10 +18,11 @@ export class ReaffectationComponent implements OnInit {
   reaffectations: Reaffectation[] = [];
   reaffectationCount: number = 0;
   newReaffectation: CreateReaffectationDTO = { idEquipement: 0, idUniteDestination: 0, date: '', motif: '' };
-  
-  equipements: { idEqpt: number; design: string ;idunite?: number | null }[] = []; // uniquement les non réformés
-  allEquipements: { idEqpt: number; design: string ;codeEqp?:string}[] = [];
 
+
+  equipements: { idEqpt: number; design: string; position_physique?: string;idunite?: number | null}[] = [];
+  allEquipements: { idEqpt: number; design: string; codeEqp?: string; position_physique?: string }[] = [];
+  positionPhysique: string | null = null;
   selectedReaffectation: Reaffectation | null = null;
   showForm = false;
   searchTerm: string = '';
@@ -97,19 +98,28 @@ unites: { idunite: number; designation: string }[] = [];
   }
   
   
+
+ 
+  
   loadEquipements(): void {
-    this.reaffectationService.getEquipementsNonReformes().subscribe(
-      (data) => (this.equipements = data),
-      (error) => console.error('Erreur chargement équipements non réformés', error)
-    );
-  }
-  loadAllEquipements(): void {
-    this.reaffectationService.getAllEquipements().subscribe(
-      (data) => (this.allEquipements = data),
-      (error) => console.error('Erreur chargement de tous les équipements', error)
-    );
+    this.reaffectationService.getEquipementsNonReformes().subscribe({
+      next: (data) => {
+        this.equipements = data;
+        console.log('📥 Équipements non réformés récupérés :', this.equipements);
+      },
+      error: (err) => console.error('❌ Erreur chargement équipements non réformés', err)
+    });
   }
   
+  loadAllEquipements(): void {
+    this.reaffectationService.getAllEquipements().subscribe({
+      next: (data) => {
+        this.allEquipements = data;
+        console.log('📥 Tous les équipements récupérés :', this.allEquipements);
+      },
+      error: (err) => console.error('❌ Erreur chargement tous équipements', err)
+    });
+  }
   
   
   loadReaffectationCount(): void {
@@ -258,36 +268,39 @@ unites: { idunite: number; designation: string }[] = [];
     });
   }
   }
+ 
   onEquipementChange(): void {
-    console.log('🔄 Changement d\'équipement sélectionné :', this.newReaffectation.idEquipement);
-    console.log('📋 Liste des équipements disponibles :', this.equipements);
-
-    const equipementSelectionne = this.equipements.find(eq => eq.idEqpt === +this.newReaffectation.idEquipement);
-
-    
-    if (equipementSelectionne) {
-      console.log('🔍 Équipement trouvé :', equipementSelectionne);
+    const ideqpt = +this.newReaffectation.idEquipement;
+    console.log('🔄 Équipement sélectionné :', ideqpt);
   
-      if (equipementSelectionne.idunite != null) {
-        const unite = this.unites.find(u => u.idunite === equipementSelectionne.idunite);
-        if (unite) {
-          console.log('🔗 Unité actuelle trouvée :', unite);
-          this.uniteActuelle = { idunite: unite.idunite, designation: unite.designation };
-        } else {
-          console.warn('⚠️ Unité non trouvée dans la liste locale.');
-          this.uniteActuelle = null;
-        }
-      } else {
-        console.log('ℹ️ Aucune unité associée à cet équipement.');
-        this.uniteActuelle = null;
-      }
+    // 1. Recherche de l’équipement sélectionné
+    let equipementSelectionne = this.equipements.find(eq => eq.idEqpt === ideqpt)
+      || this.allEquipements.find(eq => eq.idEqpt === ideqpt);
   
-      this.loadUniteActuellePourEquipement(this.newReaffectation.idEquipement);
+    if (!equipementSelectionne) {
+      console.warn('⚠️ Équipement non trouvé');
+      this.positionPhysique = null;
+      this.uniteActuelle = null;
+      return;
+    }
+  
+    // 2. Récupération de la position physique
+    this.positionPhysique = equipementSelectionne.position_physique?.trim() || null;
+    console.log('📍 Position physique récupérée :', this.positionPhysique);
+  
+    // 3. Récupération de l’unité actuelle
+    const idunite = (equipementSelectionne as any).idunite;
+  
+    if (idunite != null) {
+      const unite = this.unites.find(u => u.idunite === idunite);
+      this.uniteActuelle = unite || null;
+      console.log('🏷️ Unité actuelle trouvée :', this.uniteActuelle);
     } else {
-      console.warn('⚠️ Équipement sélectionné non trouvé dans la liste.');
+      console.warn('⚠️ ID unité non trouvé dans l’équipement');
       this.uniteActuelle = null;
     }
   }
+  
   
   loadUniteActuellePourEquipement(idEquipement: number): void {
     console.log('📡 Requête API pour l’unité actuelle de l’équipement :', idEquipement);

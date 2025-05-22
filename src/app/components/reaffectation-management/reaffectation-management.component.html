@@ -4,6 +4,7 @@
     <span class="site-name">Gestion des parcs des équipements</span>
   </div>
 
+
   <div class="menu-center">
     <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
     <a class="menu-button" (click)="navigateTo('/equipment')">Équipement</a>
@@ -11,22 +12,24 @@
     <div class="dropdown">
       <button class="menu-button">Mouvement</button>
       <div class="dropdown-content">
-        <a href="/reforme">Réforme</a>
-        <a href="/reaffectation">Réaffectation</a>
         <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
       </div>
     </div>
 
     <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
       <button class="menu-button">Table de Codification</button>
-      <div class="dropdown-content">
-        <a href="/unite">Unité</a>
-        <a href="/organe">Organe</a>
-        <a href="/marque">Marque</a>
-        <a href="/categorie">Catégorie</a>
-        <a href="/typeeq">Type</a>
+      <div class="dropdown-content"> 
         <a href="/caracteristique">Caractéristique</a>
-        <a href="/groupeidentique">Groupe Identique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
       </div>
     </div>
   </div>
@@ -48,7 +51,7 @@
       <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
         <option value="code">Code Équipement</option>
         <option value="equipement">Désignation Équipement</option>
-        <option value="encienneunite">Encienne Unité</option>
+        <option value="encienneunite">Unité précédente</option>
         <option value="nouvelleunite">Nouvelle Unité</option>
         <option value="date">Date</option>
         <option value="motif">Motif</option> <!-- ici était l'erreur -->
@@ -58,7 +61,7 @@
       <span class="arrow">{{ order === 'asc' ? '▲' : '▼' }}</span>
     </button>
       <div class="spacer"></div>
-      <button class="btn orange" *ngIf="isAdminIT || isAdminMetier" (click)="openForm()">+ Ajouter une Réaffectation</button>
+      <button class="btn orange btn-ajouter" *ngIf="isAdminIT || isAdminMetier" (click)="openForm()"> Réaffecter un équipement </button>
     </div>
   
     <h2 class="header">
@@ -74,8 +77,8 @@
         <tr>
           <th>Code Équipement</th>
           <th>Désignation Équipement</th>
-          <th>Encienne Unité</th>
-          <th>Nouvelle Unité</th>
+          <th>Unité précédente</th>
+          <th>Unité de destination</th>
           <th>Date de Réaffectation</th>
           <th>Motif</th>
         </tr>
@@ -95,7 +98,7 @@
   
     <div class="modal" *ngIf="showForm">
         <div class="form">
-          <h3>Réaffectation d'Équipement</h3>
+          <h3>Réaffecter un équipement</h3>
           <form>
             <div class="form-section">
       
@@ -110,14 +113,18 @@
             
                   </div>
                   <div class="form-group" *ngIf="uniteActuelle">
-                    <label>Unité Actuelle  :</label>
+                    <label>Unité précédente  :</label>
                     <input class="form-control" type="text" [value]="uniteActuelle.designation" disabled />
+                  </div>
+                  <div class="form-group" *ngIf="positionPhysique">
+                    <label>Position Physique :</label>
+                    <input class="form-control" type="text" [value]="positionPhysique" disabled />
                   </div>
                   
                   
                   
                   <div class="form-group">
-                    <label for="idUniteDestination">Nouvelle Unité :</label>
+                    <label for="idUniteDestination">Unité de destination :</label>
                     <select id="idUniteDestination" class="form-control long-selectt" [(ngModel)]="newReaffectation.idUniteDestination" name="idUniteDestination" >
                       <option *ngFor="let unite of unites" [value]="unite.idunite">{{ unite.designation }}</option>
                     </select>

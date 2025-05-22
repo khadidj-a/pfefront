@@ -11,26 +11,27 @@
     <div class="dropdown">
       <button class="menu-button">Mouvement</button>
       <div class="dropdown-content">
-        <a href="/reforme">Réforme</a>
-        <a href="/reaffectation">Réaffectation</a>
         <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
       </div>
     </div>
 
     <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
       <button class="menu-button">Table de Codification</button>
-      <div class="dropdown-content">
-        <a href="/unite">Unité</a>
-        <a href="/organe">Organe</a>
-        <a href="/marque">Marque</a>
-        <a href="/categorie">Catégorie</a>
-        <a href="/typeeq">Type</a>
+      <div class="dropdown-content"> 
         <a href="/caracteristique">Caractéristique</a>
-        <a href="/groupeidentique">Groupe Identique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
       </div>
     </div>
   </div>
-
 
   <div class="profile" (click)="profileOpen = !profileOpen">
     <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />

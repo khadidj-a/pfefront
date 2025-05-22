@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TypeeqComponent } from './typeeq.component';
+import { TypeEqptComponent } from './typeeq.component';
 
 describe('TypeeqComponent', () => {
-  let component: TypeeqComponent;
-  let fixture: ComponentFixture<TypeeqComponent>;
+  let component: TypeEqptComponent;
+  let fixture: ComponentFixture<TypeEqptComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TypeeqComponent]
+      imports: [TypeEqptComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TypeeqComponent);
+    fixture = TestBed.createComponent(TypeEqptComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

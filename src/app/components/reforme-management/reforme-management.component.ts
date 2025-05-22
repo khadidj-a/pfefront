@@ -32,11 +32,22 @@ export class ReformeComponent implements OnInit {
   searchTerm: string = '';
   sortBy: string = 'equipement'; 
   order: string = 'asc';
-  equipements: { idEqpt: number; design: string }[] = []; // uniquement les non réformés
-allEquipements: { idEqpt: number; design: string;codeEqp?:string }[] = []; // tous les équipements
-
+  equipements: { idEqpt: number; design: string; position_physique?: string;
+    uniteDesignation?: string;}[] = [];
+  allEquipements: { idEqpt: number; design: string; codeEqp?: string; position_physique?: string ;
+    uniteDesignation?: string;}[] = [];
+    positionPhysique: string | null = null;
+    uniteDesignation :string|null = null;
+  newreforme: CreateReformeDTO = {
+    ideqpt: 0,
+    numdes:0,
+    dateref: '',
+    motifref: ''
+  };
 idunite:any={};
 
+unites: { idunite: number; designation: string }[] = [];
+uniteActuelle: { idunite: number; designation: string } | null = null;
   constructor(private reformeService: ReformeService,private router: Router ,
     private authService: AuthService,private dialog: MatDialog) {}
 
@@ -105,18 +116,15 @@ idunite:any={};
   }
   
 
-  getDesignation(id: number): string {
-    if (!this.allEquipements || this.allEquipements.length === 0) return '';
-    const eqpt = this.allEquipements.find(e => e.idEqpt === id);
-    if (!eqpt) {
-      console.error(`❌ Équipement introuvable pour id = ${id}`);
-      return 'Équipement introuvable';
-    }
-    return eqpt.design;
-  }
   
-
-
+ getDesignation(id: number): string {
+    const eqpt = this.allEquipements.find(e => e.idEqpt === id);
+    return eqpt ? eqpt.design : 'Équipement introuvable';
+  }
+  getUniteEmissionName(iduniteemt: number): string {
+    const unite = this.unites.find(u => u.idunite === iduniteemt);
+    return unite ? unite.designation : 'Unité d’émission introuvable';
+  }
   openForm(reforme?: Reforme) {
     this.selectedReforme = reforme || null;
     this.ideqpt_input = reforme ? reforme.ideqpt : null;
@@ -203,16 +211,23 @@ idunite:any={};
     });
   }
   loadEquipements(): void {
-    this.reformeService.getEquipementsNonReformes().subscribe(
-      (data) => (this.equipements = data),
-      (error) => console.error('Erreur chargement équipements non réformés', error)
-    );
+    this.reformeService.getEquipementsNonReformes().subscribe({
+      next: (data) => {
+        this.equipements = data;
+        console.log('📥 Équipements non réformés récupérés :', this.equipements);
+      },
+      error: (err) => console.error('❌ Erreur chargement équipements non réformés', err)
+    });
   }
+  
   loadAllEquipements(): void {
-    this.reformeService.getAllEquipements().subscribe(
-      (data) => (this.allEquipements = data),
-      (error) => console.error('Erreur chargement de tous les équipements', error)
-    );
+    this.reformeService.getAllEquipements().subscribe({
+      next: (data) => {
+        this.allEquipements = data;
+        console.log('📥 Tous les équipements récupérés :', this.allEquipements);
+      },
+      error: (err) => console.error('❌ Erreur chargement tous équipements', err)
+    });
   }
   
   logout() {
@@ -273,4 +288,34 @@ idunite:any={};
     return this.role === 'Responsable Unité';
    
   }
+  getUniteDesignation(ideqpt: number): string {
+    const eqpt = this.allEquipements.find(e => e.idEqpt === ideqpt);
+    return eqpt ? eqpt.uniteDesignation ?? 'Unité inconnue' : 'Équipement non trouvé';
+  }
+  
+  onEquipementChange(): void {
+    const ideqpt = Number(this.newreforme.ideqpt);
+    console.log('🔄 Équipement sélectionné :', ideqpt);
+  
+    // 1. Recherche de l’équipement sélectionné
+    const equipementSelectionne = this.equipements.find(eq => eq.idEqpt === ideqpt)
+      || this.allEquipements.find(eq => eq.idEqpt === ideqpt);
+  
+    if (!equipementSelectionne) {
+      console.warn('⚠️ Équipement non trouvé');
+      this.positionPhysique = null;
+      this.uniteDesignation = null;
+      return;
+    }
+  
+    // 2. Récupération de la position physique
+    this.positionPhysique = equipementSelectionne.position_physique?.trim() || null;
+    console.log('📍 Position physique récupérée :', this.positionPhysique);
+  
+    // 3. Récupération de l’unité désignation directement depuis l’équipement
+    this.uniteDesignation = equipementSelectionne.uniteDesignation?.trim() || null;
+    console.log('🏷️ Unité désignation récupérée :', this.uniteDesignation);
+  }
+  
+ 
 }

@@ -270,6 +270,10 @@ tr:hover {
   border: 1px solid #ccc;
   color: rgb(92, 93, 94);
 }
+.btn-ajouter {
+  min-width: 190px; /* ou width: 190px pour fixer complètement */
+  text-align: center;
+}
 
 
 .modal {
