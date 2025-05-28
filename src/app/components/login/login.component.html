@@ -1,0 +1,25 @@
+<div class="login-container">
+  <div class="login-card">
+    
+    <!-- Image ajoutée -->
+    <img src="assets/logo-eng.jpg" alt="Logo" class="login-logo" />
+
+    <h2>Connexion</h2>
+
+    <form (ngSubmit)="onSubmit()">
+      <label for="email">Email :</label>
+      <input id="email" [(ngModel)]="email" name="email" type="email" required />
+
+      <label for="motpasse">Mot de passe :</label>
+      <input id="motpasse" [(ngModel)]="motpasse" name="motpasse" type="password" required />
+
+      <div class="error" [class.active]="errorMessage">
+        {{ errorMessage || ' ' }}
+      </div>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Connexion en cours...' : 'Se connecter' }}
+      </button>
+    </form>
+  </div>
+</div>

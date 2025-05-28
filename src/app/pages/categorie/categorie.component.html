@@ -1,0 +1,136 @@
+<div class="topbar">
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+
+
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <a class="menu-button" (click)="navigateTo('/equipment')">Équipement</a>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
+      </div>
+    </div>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content"> 
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
+      </div>
+    </div>
+  </div>
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+  <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+  <!-- Container principal -->
+  <div class="container">
+    <!-- Toolbar de recherche et tri -->
+    <div class="toolbar">
+      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+  
+      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="codecategorie">Code</option>
+        <option value="designation">Désignation</option>
+      </select>
+  
+      <button class="btn sort-btn" (click)="toggleSort(sortBy)">
+        <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
+      </button>
+  
+      <div class="spacer"></div>
+      <button class="btn orange btn-ajouter" (click)="openForm()">+ Ajouter Catégorie</button>
+    </div>
+  
+    <!-- Titre -->
+    <h2 class="header">Liste des Catégories
+      <span class="tooltip badge">
+        {{ categorieCount }}
+        <span class="tooltip-text">Nombre total des Catégories</span>
+      </span>
+    </h2>
+  
+    <!-- Tableau -->
+    <table>
+      <thead>
+        <tr>
+          <th>Code Catégorie</th>
+          <th>Désignation</th>
+          <th style="text-align: left;">
+            <span style="display: inline-block; transform: translateX(420px);">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let categorie of categories">
+          <td>{{ categorie.codecategorie }}</td>
+          <td>{{ categorie.designation }}</td>
+          <td>
+            <button class="btn btn-warning me-2 tooltip" (click)="openForm(categorie)">✏️
+              <span class="tooltip-text">Modifier cette catégorie</span></button>
+            <button class="btn btn-danger orange tooltip tooltip-left" (click)="deletecategorie(categorie)">🗑️
+              <span class="tooltip-text">Supprimer cette catégorie</span></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+  <!-- MODALE SUPPRESSION -->
+<div class="modal" *ngIf="showDeleteConfirm">
+  <div class="form">
+    <h3>Confirmer la suppression</h3>
+    <p>Voulez-vous vraiment supprimer cette catégorie ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmDelete()">Supprimer</button>
+      <button class="btn grey" (click)="cancelDelete()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!--  MODALE DECONNEXION -->
+<div class="modal" *ngIf="showLogoutConfirm">
+  <div class="form">
+    <h3>Déconnexion</h3>
+    <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmLogout()">Oui</button>
+      <button class="btn grey" (click)="cancelLogout()"> Non</button>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Modal Formulaire -->
+    <div class="modal" *ngIf="showForm">
+      <div class="form">
+        <h3>{{ selectedCategorie ? 'Modifier' : 'Ajouter' }} une Catégorie</h3>
+        <input class="form-control" type="text" [(ngModel)]="categorie_input.designation" placeholder="Désignation" />
+        <div class="actions">
+          <button class="btn orange" (click)="saveCategorie()"> Enregistrer</button>
+          <button class="btn grey" (click)="closeForm()"> Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

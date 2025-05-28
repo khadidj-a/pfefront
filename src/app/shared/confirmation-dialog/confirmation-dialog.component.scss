@@ -1,0 +1,76 @@
+
+.dialog-title {
+  font-weight: 600;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #070504;
+  margin: 0;
+}
+
+.dialog-message {
+  font-size: 16px;
+  color: #424242;
+  margin: 12px 0;
+  text-align: center;
+}
+:host ::ng-deep .mat-dialog-container {
+  background-color: #fff8f0 !important;
+  color: #333 !important;
+  border-radius: 12px;
+  padding: 16px 20px 50px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 420px !important;
+  width: 100% !important;
+  box-sizing: border-box;
+  overflow: hidden !important;
+
+}
+
+.mat-dialog-actions {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.globale {
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  border-radius: 6px;
+}
+
+.mat-raised-button,
+.cancel-button{
+  background-color: rgb(99, 111, 118) !important;
+  color: white !important;
+  min-width: 100px;
+  
+}
+
+.confirm-button {
+  background-color: #fb8c00 !important;
+  color: white !important;
+  min-width: 100px;
+  
+}
+
+.mat-raised-button:hover,
+.cancel-button:hover {
+  background-color: #221e1a !important;
+}
+.confirm-button:hover {
+  background-color: #ef6c00 !important;
+}
+
+
+body {
+  overflow-x: hidden !important;
+}
+.mat-dialog-actions {
+  margin-bottom: 10px;
+}

@@ -1,0 +1,59 @@
+<div class="dialog-container">
+    <h2>Ajouter un prêt</h2>
+  
+    <form #pretForm="ngForm" autocomplete="off" (ngSubmit)="save()">
+      <!-- ID Équipement -->
+      <label for="ideqpt">ID Équipement</label>
+      <input
+        id="ideqpt"
+        type="number"
+        name="ideqpt"
+        [(ngModel)]="pret.ideqpt"
+        required
+      />
+  
+      <!-- ID Unité -->
+      <label for="idunite">ID Unité</label>
+      <input
+        id="idunite"
+        type="number"
+        name="idunite"
+        [(ngModel)]="pret.idunite"
+        required
+      />
+  
+      <!-- Durée -->
+      <label for="duree">Durée (en jours)</label>
+      <input
+        id="duree"
+        type="number"
+        name="duree"
+        [(ngModel)]="pret.duree"
+        required
+      />
+  
+      <!-- Date du prêt -->
+      <label for="datepret">Date du prêt</label>
+      <input
+        id="datepret"
+        type="date"
+        name="datepret"
+        [(ngModel)]="pret.datepret"
+        required
+      />
+    </form>
+  
+    <div class="dialog-actions">
+      <button type="button" class="grey" (click)="close()">Annuler</button>
+      <button
+        type="submit"
+        class="orange"
+        [disabled]="pretForm.invalid"
+      >
+        Ajouter
+      </button>
+    </div>
+  
+   <!-- <div *ngIf="message" class="message">{{ message }}</div>-->
+    <!--<div *ngIf="error" class="error">{{ error }}</div>-->
+  </div>

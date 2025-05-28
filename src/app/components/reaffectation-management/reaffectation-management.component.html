@@ -1,0 +1,173 @@
+<div class="topbar">
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+
+
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <div class="dropdown">
+      <button class="menu-button">Équipement</button>
+      <div class="dropdown-content">
+        <a href="/equipment">Table Équipement</a>
+        <a href="/fiche-equipement">Fiche Équipement</a>
+      </div>
+    </div>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
+      </div>
+    </div>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content"> 
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
+      </div>
+    </div>
+  </div>
+
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+  <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="toolbar">
+      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="code">Code Équipement</option>
+        <option value="equipement">Désignation Équipement</option>
+        <option value="encienneunite">Unité précédente</option>
+        <option value="nouvelleunite">Nouvelle Unité</option>
+        <option value="date">Date</option>
+        <option value="motif">Motif</option> <!-- ici était l'erreur -->
+      </select>
+      
+   <button class="btn sort-btn" (click)="toggleSort()">
+      <span class="arrow">{{ order === 'asc' ? '▲' : '▼' }}</span>
+    </button>
+      <div class="spacer"></div>
+      <button class="btn orange btn-ajouter" *ngIf="isAdminIT || isAdminMetier" (click)="openForm()"> Réaffecter un équipement </button>
+    </div>
+  
+    <h2 class="header">
+      Liste des Réaffectations
+      <span class="tooltip badge">
+        {{ reaffectationCount }}
+        <span class="tooltip-text">Nombre total des réaffectations</span>
+      </span>
+    </h2>
+  
+    <table>
+      <thead>
+        <tr>
+          <th>Code Équipement</th>
+          <th>Désignation Équipement</th>
+          <th>Unité précédente</th>
+          <th>Unité de destination</th>
+          <th>Date de Réaffectation</th>
+          <th>Motif</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reaffectation of reaffectations">
+          <td>{{ getCodeEqp(reaffectation.ideqpt) }}</td>
+           <td>{{ getDesignation(reaffectation.ideqpt) }}</td> 
+           <td>{{ reaffectation.iduniteemt !== null ? getUniteEmissionName(reaffectation.iduniteemt) : '' }}</td>
+          <td>{{ getUniteName( reaffectation.idunitedest) }}</td>
+          <td>{{ reaffectation.datereaf | date: 'dd/MM/yyyy' }}</td>
+          <td class="wrap-text">{{ reaffectation.motifreaf }}</td>
+        </tr>
+      </tbody>
+    </table>
+  
+  
+    <div class="modal" *ngIf="showForm">
+        <div class="form">
+          <h3>Réaffecter un équipement</h3>
+          <form>
+            <div class="form-section">
+      
+                <div class="form-group">
+                    <label for="ideqpt">Équipement :</label>
+                    <select id="ideqpt" class="form-control long-select"
+                    [(ngModel)]="newReaffectation.idEquipement"
+                    name="ideqpt"
+                    (change)="onEquipementChange()">
+              <option *ngFor="let e of equipements" [value]="e.idEqpt">{{ e.design }}</option>
+            </select>
+            
+                  </div>
+                  <div class="form-group" *ngIf="uniteActuelle">
+                    <label>Unité précédente  :</label>
+                    <input class="form-control" type="text" [value]="uniteActuelle.designation" disabled />
+                  </div>
+                  <div class="form-group" *ngIf="positionPhysique">
+                    <label>Position Physique :</label>
+                    <input class="form-control" type="text" [value]="positionPhysique" disabled />
+                  </div>
+                  
+                  
+                  
+                  <div class="form-group">
+                    <label for="idUniteDestination">Unité de destination :</label>
+                    <select id="idUniteDestination" class="form-control long-selectt" [(ngModel)]="newReaffectation.idUniteDestination" name="idUniteDestination" >
+                      <option *ngFor="let unite of unites" [value]="unite.idunite">{{ unite.designation }}</option>
+                    </select>
+                  </div>
+                  
+                  
+      
+              <div class="form-group">
+                <label for="date">Date de Réaffectation :</label>
+                <input type="date" id="date" class="form-control" [(ngModel)]="newReaffectation.date" name="date" />
+              </div>
+      
+  
+               <div class="form-group">
+                <label>Motif :</label>
+                <textarea [(ngModel)]="newReaffectation.motif" name="motif" placeholder="Motif de la réaffectation"></textarea>
+              </div>
+              <div class="actions">
+                <button type="button" class="btn orange" (click)="addReaffectation()">Enregistrer</button>
+                <button type="button" class="btn grey" (click)="closeForm()">Annuler</button>
+              </div>
+              
+            </div>
+          </form>
+        </div>
+      </div>
+      
+  </div>
+  <!-- Modal de déconnexion -->
+  <div class="modal" *ngIf="showLogoutConfirm">
+    <div class="form">
+      <h3>Déconnexion</h3>
+      <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+      <div class="actions">
+        <button class="btn orange" (click)="confirmLogout()">Oui</button>
+        <button class="btn grey" (click)="cancelLogout()">Non</button>
+      </div>
+    </div>
+  </div>
+  

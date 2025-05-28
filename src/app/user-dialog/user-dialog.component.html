@@ -1,0 +1,119 @@
+<div class="dialog-container">
+  <h2>{{ mode === 'add' ? 'Ajouter un utilisateur' : 'Modifier l\'utilisateur' }}</h2>
+
+  <form #userForm="ngForm" autocomplete="off">
+
+    <!-- Nom -->
+    <label for="nom">Nom</label>
+    <input
+      id="nom"
+      type="text"
+      [(ngModel)]="user.nom"
+      name="nom"
+      required
+      pattern="[a-zA-ZéèàâêîôùçÉÈÀÂÊÎÔÙÇ\-'\s]+"
+      #nom="ngModel"
+    />
+    <div *ngIf="nom.invalid && nom.touched" class="error-message">
+      Le nom doit contenir uniquement des lettres.
+    </div>
+
+    <!-- Prénom -->
+    <label for="prenom">Prénom</label>
+    <input
+      id="prenom"
+      type="text"
+      [(ngModel)]="user.prenom"
+      name="prenom"
+      required
+      pattern="[a-zA-ZéèàâêîôùçÉÈÀÂÊÎÔÙÇ\-'\s]+"
+      #prenom="ngModel"
+    />
+    <div *ngIf="prenom.invalid && prenom.touched" class="error-message">
+      Le prénom doit contenir uniquement des lettres.
+    </div>
+
+    <!-- Email -->
+    <label for="email">Email</label>
+    <input
+      id="email"
+      type="email"
+      [(ngModel)]="user.email"
+      name="email"
+      required
+      [pattern]="emailPattern"
+      autocomplete="off"
+      #email="ngModel"
+    />
+    <div *ngIf="email.invalid && email.touched" class="error-message">
+      Adresse email invalide.
+    </div>
+
+    <!-- Mot de passe -->
+    <label *ngIf="mode === 'add'" for="motpasse">Mot de passe</label>
+    <input
+      *ngIf="mode === 'add'"
+      id="motpasse"
+      type="password"
+      [(ngModel)]="user.motpasse"
+      name="motpasse"
+      required
+      autocomplete="new-password"
+    />
+
+    <!-- Numéro de téléphone -->
+    <label for="numtel">Numéro de téléphone</label>
+    <input
+      id="numtel"
+      type="text"
+      [(ngModel)]="user.numtel"
+      name="numtel"
+      required
+      pattern="^[0-9]{10}$"
+      maxlength="10"
+      #numtel="ngModel"
+    />
+    <div *ngIf="numtel.invalid && numtel.touched" class="error-message">
+      Le numéro doit contenir exactement 10 chiffres.
+    </div>
+
+    <!-- Unité -->
+    <label for="idunite">Unité</label>
+    <select id="idunite" [(ngModel)]="user.idunite" name="idunite" required>
+      <option value="" disabled selected>Choisir une unité</option>
+      <option *ngFor="let unite of unites" [value]="unite.idunite">
+        {{ unite.designation }}
+      </option>
+    </select>
+
+    <!-- Rôle -->
+    <label for="idrole">Rôle</label>
+    <select id="idrole" [(ngModel)]="user.idrole" name="idrole" required>
+      <option value="" disabled selected>Choisir un rôle</option>
+      <option value="1">Admin IT</option>
+      <option value="2">Admin Métier</option>
+      <option value="3">Responsable Unité</option>
+    </select>
+
+    <!-- Statut -->
+    <label for="actif">Statut</label>
+    <select id="actif" [(ngModel)]="user.actif" name="actif" required>
+      <option value="" disabled selected>Choisir un statut</option>
+      <option value="1">Actif</option>
+      <option value="0">Inactif</option>
+    </select>
+  </form>
+
+  <div class="dialog-actions"> 
+     <button
+      type="button"
+      class="orange"
+      [disabled]="userForm.invalid"
+      (click)="save()"
+    >
+      {{ mode === 'add' ? 'Ajouter' : 'Enregistrer' }}
+    </button>
+    <button type="button" class="grey" (click)="close()">Annuler</button>
+  
+  </div>
+</div>

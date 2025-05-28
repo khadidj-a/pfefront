@@ -1,0 +1,127 @@
+<div class="topbar">
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <div class="dropdown">
+      <button class="menu-button">Équipement</button>
+      <div class="dropdown-content">
+        <a href="/equipment">Table Équipement</a>
+        <a href="/fiche-equipement">Fiche Équipement</a>
+      </div>
+    </div>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
+      </div>
+    </div>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content"> 
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
+      </div>
+    </div>
+  </div>
+
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+      <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+  
+<!-- USER MANAGEMENT COMPONENT -->
+<div class="user-management">
+  <!-- Ligne avec Retour et Ajouter -->
+  <!-- Nouvelle barre d'action combinée -->
+<div class="action-bar-combined">
+  <div class="search-bar">
+    <input
+      type="text"
+      placeholder="🔍 Rechercher par nom, prénom, email"
+      [(ngModel)]="searchTerm"
+      (input)="filterUsers()"
+    />
+  </div>
+
+  <button class="add-user-button" (click)="openAddDialog()">+ Ajouter un utilisateur</button>
+</div>
+
+
+
+     <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>
+    <h2 class="header">Liste des Utilisateurs
+      <span class="tooltip badge">
+        {{ utilisateurCount }}
+        <span class="tooltip-text">Nombre total des Utilisateurs</span>
+      </span>
+    </h2>
+  <table >
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Adresse Email</th>
+        <th>Numéro Téléphone</th>
+        <th>Statut</th>
+        <th>Rôle</th>
+        <th style="text-align: left;">
+          <span style="display: inline-block; transform: translateX(55px);">Actions</span>
+        </th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of filteredUsers; let i = index">
+        <td>{{ user.nom }}</td>
+        <td>{{ user.prenom }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.numtel }}</td> 
+        <td>{{ user.actif === '1' ? 'Oui' : 'Non' }}</td>
+        <td>{{ user.role }}</td>
+        <td>
+          <div class="action-buttonss">
+            <button class="edit-btn tooltip" (click)="editUser(user)">✏️
+              <span class="tooltip-text">Modifier cet Utilisateur</span>
+            </button>
+            <button class="toggle-btn orange tooltip tooltip-left" (click)="toggleUserStatus(user)">
+              {{ user.actif === '1' ? '🔒' : '🔓' }}
+              <span class="tooltip-text">{{ user.actif === '1' ? ' Désactiver ce compte' : ' Activer ce compte' }} </span>
+            </button>
+          </div>
+        </td>
+        
+      </tr>
+    </tbody>
+  </table>
+</div>

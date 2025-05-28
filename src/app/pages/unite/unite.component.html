@@ -1,0 +1,192 @@
+<div class="topbar">
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+
+
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <div class="dropdown">
+      <button class="menu-button">Équipement</button>
+      <div class="dropdown-content">
+        <a href="/equipment">Table Équipement</a>
+        <a href="/fiche-equipement">Fiche Équipement</a>
+      </div>
+    </div>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
+      </div>
+    </div>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content"> 
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+  <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+  
+  <div class="container">
+    <div class="toolbar">
+      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+  
+      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="codeunite">Code </option>
+        <option value="designation">Désignation</option>
+        <option value="nomwilaya">wilaya</option>
+        <option value="nomregion">Région</option>
+      </select>
+      <button class="btn sort-btn" (click)="toggleSort(sortBy)">
+        <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
+      </button>
+  
+      <div class="spacer"></div>
+      <button class="btn orange btn-ajouter" (click)="openForm()">+ Ajouter Unité</button>
+    </div>
+  
+    <h2 class="header">
+      Liste des Unités 
+      <span class="tooltip badge">
+        {{ uniteCount }}
+        <span class="tooltip-text">Nombre total des unités</span>
+      </span>
+    </h2>
+    
+    
+    <table>
+      <thead>
+        <tr>
+          <th (click)="toggleSort('codeunite')">Code</th>
+          <th (click)="toggleSort('designation')">Désignation</th>
+          <th (click)="toggleSort('wilaya')">Wilaya</th>
+          <th (click)="toggleSort('region')">Région</th>
+          <th style="text-align: left;">
+            <span style="display: inline-block; transform: translateX(180px);">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of unites">
+            <td>{{ u.codeunite }}</td>
+            <td>{{ u.designation }}</td>
+            <td>{{ u.nomwilaya }}</td>
+            <td>{{ u.nomregion }}</td>
+         
+          <td>
+            <button class="btn btn-warning me-2 tooltip" (click)="openForm(u)">
+              ✏️
+              <span class="tooltip-text">Modifier cette unité</span>
+            </button>            
+            <button class="btn btn-danger orange tooltip tooltip-left" (click)="deleteUnite(u)">
+              🗑️
+              <span class="tooltip-text">Supprimer cette unité</span>
+            </button>            
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div class="modal" *ngIf="showForm">
+        <div class="form">
+            <h3>{{ selectedUnite ? 'Modifier' : 'Ajouter' }} une Unité</h3>
+       
+          <form>
+         
+<div class="form-group">
+
+  <label for="codeunite">Code Unité 
+  </label>
+  <input id="codeunite" name="codeunite" [(ngModel)]="codeunite_input" maxlength="2"  class="form-control" placeholder="Code Unité"
+   required />
+  <div class="error" *ngIf="codeError && codeError.includes('code')">
+    {{ codeError }}
+  </div>
+</div>
+
+            <div class="form-group">
+              
+              <label for="designation">Désignation</label>
+              <input id="designation" name="designation" [(ngModel)]="designation_input" class="form-control"  placeholder="Désignation" required />
+              <div class="error" *ngIf="codeError && codeError.includes('désignation')">
+                {{ codeError }}
+              </div>
+            </div> 
+      
+            <div class="form-group">
+              <label for="wilaya">Wilaya</label>
+              <select id="wilaya" name="wilaya" [(ngModel)]="selectedWilaya" required>
+                <option *ngFor="let wilaya of wilayas" [value]="wilaya.idwilaya">
+                  {{ wilaya.nomwilaya }}
+                </option>
+              </select>
+            </div>
+      
+            <div class="form-group">
+              <label for="region">Région</label>
+              <select id="region" name="region" [(ngModel)]="selectedRegion" required>
+                <option *ngFor="let region of regions" [value]="region.idregion">
+                  {{ region.nomregion }}
+                </option>
+              </select>
+            </div>
+      
+            <div class="actions">
+              <button type="button" class="btn orange" (click)="saveUnite()"> Enregistrer</button>
+              <button type="button" class="btn grey" (click)="closeForm()">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+  </div>
+  
+    <!-- Modal de suppression -->
+<div class="modal" *ngIf="showDeleteConfirmUnite">
+  <div class="form">
+    <h3>Confirmer la suppression</h3>
+    <p>Voulez-vous vraiment supprimer cette unité ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmDeleteUnite()">Supprimer</button>
+      <button class="btn grey" (click)="cancelDeleteUnite()">Annuler</button> 
+    </div>
+  </div>
+</div>
+
+    <!--  MODALE DECONNEXION -->
+    <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>

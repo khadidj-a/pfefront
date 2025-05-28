@@ -1,0 +1,138 @@
+<div class="topbar">
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Équipement</button>
+      <div class="dropdown-content">
+        <a href="/equipment">Table Équipement</a>
+        <a href="/fiche-equipement">Fiche Équipement</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
+      </div>
+    </div>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content"> 
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
+      </div>
+    </div>
+  </div>
+
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+  <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+  
+  <div class="container">
+    <div class="toolbar">
+      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+      
+      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="codetype">Code</option>
+        <option value="designation">Désignation</option>
+      </select>
+      
+      <button class="btn sort-btn" (click)="toggleSort(sortBy)">
+        <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
+      </button>
+      
+      <div class="spacer"></div>
+      <button class="btn orange btn-ajouter" (click)="openForm()">+ Ajouter Type </button>
+    </div>
+  
+    <h2 class="header">Liste des Types des Équipements
+      <span class="tooltip badge">
+        {{ typeCount }}
+        <span class="tooltip-text">Nombre total des Types</span>
+      </span>
+    </h2>
+  
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Désignation</th>
+          <th style="text-align: left;">
+            <span style="display: inline-block; transform: translateX(480px);">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of types">
+          <td>{{ t.codetype }}</td>
+          <td>{{ t.designation }}</td>
+          <td>
+            <button class="btn btn-warning me-2 tooltip" (click)="openForm(t)">✏️
+              <span class="tooltip-text">Modifier ce Type</span>
+            </button>
+            <button class="btn btn-danger orange tooltip tooltip-left" (click)="deletetype(t)">🗑️
+              <span class="tooltip-text">Supprimer ce Type</span></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- Modal de suppression -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm">
+  <div class="modal">
+    <div class="form">
+      <h3>Confirmer la suppression</h3>
+      <p>Voulez-vous vraiment supprimer le type <strong>{{ typeToDelete?.designation }}</strong> ?</p>
+      <div class="actions">
+        <button class="btn orange" (click)="confirmDelete()">🗑️ Supprimer</button>
+        <button class="btn grey" (click)="cancelDelete()">❌ Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!--  MODALE DECONNEXION -->
+    <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>
+  
+    <div class="modal" *ngIf="showForm">
+      <div class="form">
+        <h3>{{ selectedType ? 'Modifier' : 'Ajouter' }} un Type</h3>
+        <input class="form-control" type="text" [(ngModel)]="designation_input" placeholder="Désignation " />
+        <div class="actions">
+          <button class="btn orange" (click)="saveType()">Enregistrer</button>
+          <button class="btn grey" (click)="closeForm()"> Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

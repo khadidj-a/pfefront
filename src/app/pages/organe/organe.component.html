@@ -1,0 +1,206 @@
+<div class="topbar">
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <div class="dropdown">
+      <button class="menu-button">Équipement</button>
+      <div class="dropdown-content">
+        <a href="/equipment">Table Équipement</a>
+        <a href="/fiche-equipement">Fiche Équipement</a>
+      </div>
+    </div>  
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
+      </div>
+    </div>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content"> 
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
+      </div>
+    </div>
+  </div>
+
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+  <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+  <div class="container">
+    <div class="toolbar">
+      <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+  
+      <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="codeorgane">Code</option>
+        <option value="libelle_organe">Désignation</option>
+        <option value="nommarque">Marque</option>
+        <option value="modele">Modèle</option>
+      </select>
+  
+      <button class="btn sort-btn" (click)="toggleSort(sortBy)">
+        <span class="arrow">{{ ascending ? '▲' : '▼' }}</span>
+      </button>
+  
+      <div class="spacer"></div>
+      <button class="btn orange btn-ajouter" (click)="openForm()">+ Ajouter Organe</button>
+    </div>
+  
+    <h2 class="header">Liste des Organes
+      <span class="tooltip badge">
+        {{ organeCount }}
+        <span class="tooltip-text">Nombre total des Organes</span>
+      </span>
+    </h2>
+  
+    <table>
+      <thead>
+        <tr>
+          <th (click)="toggleSort('code_organe')">Code</th>
+          <th (click)="toggleSort('libelle_organe')">Désignation</th>
+          <th (click)="toggleSort('nom_marque')">Marque</th>
+          <th (click)="toggleSort('modele')">Modèle</th>
+          <th>Caractéristiques</th>
+          <th style="text-align: left;">
+            <span style="display: inline-block; transform: translateX(120px);">Actions</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let org of organes">
+          <td>{{ org.code_organe }}</td>
+          <td>{{ org.libelle_organe }}</td>
+          <td>{{ org.nom_marque }}</td>
+          <td>{{ org.modele }}</td>
+          <td>
+            <ng-container *ngIf="org.caracteristiques && org.caracteristiques.length > 0; else noCarac">
+              <div *ngFor="let c of org.caracteristiques">
+                {{ c.nomCaracteristique }} : {{ c.valeur }}
+              </div>
+            </ng-container>
+            <ng-template #noCarac>---</ng-template>
+          </td>
+          
+          
+          <td>
+            <button class="btn btn-warning me-2 tooltip" (click)="openForm(org)">✏️
+              
+              <span class="tooltip-text">Modifier cet organe</span>
+            </button>
+            <button class="btn btn-danger orange tooltip tooltip-left" (click)="deleteorgane(org)">🗑️
+              
+              <span class="tooltip-text">Supprimer cet organe</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    
+    <!-- Modal de suppression -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm">
+  <div class="modal">
+    <div class="form">
+      <h3>Confirmer la suppression</h3>
+      <p>Voulez-vous vraiment supprimer cet organe <strong>{{ organeToDelete?.libelle_organe }}</strong> ?</p>
+      <div class="actions">
+        <button class="btn orange" (click)="confirmDelete()"> Supprimer</button>
+        <button class="btn grey" (click)="cancelDelete()"> Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <!--  MODALE DECONNEXION -->
+    <div class="modal" *ngIf="showLogoutConfirm">
+      <div class="form">
+        <h3>Déconnexion</h3>
+        <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        <div class="actions">
+          <button class="btn orange" (click)="confirmLogout()">Oui</button>
+          <button class="btn grey" (click)="cancelLogout()"> Non</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal" *ngIf="showForm">
+      <div class="modal-content">
+        <h2>{{ selectedOrgane ? 'Modifier' : 'Ajouter' }} un Organe</h2>
+    
+        <form  class="form-container">
+          
+          
+    
+          <div class="form-groupa">
+            <label for="libelle">Désignation</label>
+            <input id="libelle" class="form-control" [(ngModel)]="libelle_input" name="libelle" placeholder="Désignation"v required />
+          </div>
+    
+          <div class="form-groupa">
+            <label for="marque" >Marque </label>
+            <select id="marque" class="form-control" [(ngModel)]="selectedMarque" name="marque"  required>
+              <option *ngFor="let marque of marques" [value]="marque.idmarque">{{ marque.nom_fabriquant }}</option>
+
+            </select>
+            
+            
+          </div>
+          <div class="form-groupa">
+            <label for="modele">Modèle</label>
+            <input id="modele" class="form-control" [(ngModel)]="modele_input" name="modele" placeholder="Modèle" required />
+          </div>
+          
+    
+          <div class="form-group">
+                <label>Caractéristiques </label>
+                <div class="caracteristiques-list">
+                  <div *ngFor="let carac of caracteristiques" class="carac-item">
+                    <input type="checkbox" [(ngModel)]="carac.checked" (change)="onCheckboxChange(carac)" [name]="'carac-' + carac.id_caracteristique" />
+                    <label>{{ carac.libelle }}</label>
+
+                    <input 
+                      *ngIf="carac.checked" 
+                      type="text" 
+                      class="value-input" 
+                      [(ngModel)]="carac.valeur" 
+                      [name]="'value-' + carac.id_caracteristique" 
+                      placeholder="Valeur..." 
+                    />
+                  </div>
+                </div>
+              </div>
+            
+    
+          <div class="actions">
+            <button class="btn orange" type="button" (click)="saveOrgane()">Enregistrer</button>
+
+            <button class="btn grey" type="button"  (click)="closeForm()"> Annuler</button>
+          </div>
+    
+        </form>
+      </div>
+    </div>  
+      </div>
+  

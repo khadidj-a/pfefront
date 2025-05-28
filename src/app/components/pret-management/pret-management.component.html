@@ -1,0 +1,179 @@
+<div class="topbar">
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+
+
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <div class="dropdown">
+      <button class="menu-button">Équipement</button>
+      <div class="dropdown-content">
+        <a href="/equipment">Table Équipement</a>
+        <a href="/fiche-equipement">Fiche Équipement</a>
+      </div>
+    </div>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
+      </div>
+    </div>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content"> 
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
+      </div>
+    </div>
+  </div>
+
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+  <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="container">
+  <div class="toolbar">
+    <input class="form-control" type="text" [(ngModel)]="searchTerm" placeholder="🔍 Rechercher..." (input)="search()" />
+    <select class="form-control" [(ngModel)]="sortBy" (change)="search()">
+        <option value="equipement">Désignation Équipement</option>
+        <option value="codeequipement">Code Équipement</option>
+        <option value="unite">Unité Actuel</option>
+        <option value="positionphysique">Unite ciblée</option>
+        <option value="date">Date</option>
+        <option value="duree">Durée</option>
+        <option value="motif">Motif</option>
+      
+      
+    </select>
+   <button class="btn sort-btn" (click)="toggleSortOrder()">
+      <span class="arrow">{{ order === 'asc' ? '▲' : '▼' }}</span>
+    </button>
+    
+    <div class="spacer"></div>
+    <button class="btn orange btn-ajouter" *ngIf="isAdminIT || isAdminMetier" (click)="openForm()">Prêter un équipement</button>
+
+
+  </div>
+  <!-- Dans le template HTML -->
+
+
+    <!-- Barre supérieure -->
+  
+    <h2 class="header">
+      Liste des Prets
+      <span class="tooltip badge">
+        {{ pretCount }}
+        <span class="tooltip-text">Nombre total des prets</span>
+      </span>
+    </h2>
+  
+    <!-- Tableau des prêts -->
+    <table >
+      <thead>
+        <tr>
+          <th>Code Équipement</th>
+          <th>Désignation Équipement</th>
+          <th>Unité prêteuse</th>
+          <th>Unité emprunteuse</th>
+          <th>Date Prêt</th>
+          <th>Durée (jours)</th>
+          <th>Motif</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pret of prets">
+          <td>{{ getCodeEqp(pret.ideqpt) }}</td>
+          <td>{{ getDesignation(pret.ideqpt) }}</td>
+          <td>{{ pret.iduniteemt !== null ? getUniteEmissionName(pret.iduniteemt) : '' }}</td>
+          <td>{{ getUniteName(pret.idunite) }}</td>
+          <td>{{ pret.datepret | date: 'yyyy-MM-dd' }}</td>
+          <td>{{ pret.duree }} jours</td>
+          <td class="wrap-text">{{ pret.motif }}</td>
+        </tr>
+      </tbody>
+    </table>
+    
+           
+    
+    <!-- Formulaire ajout/modification -->
+    <div class="modal" *ngIf="showForm">
+      <div class="form">
+        <h3>Prêter un équipement</h3>
+  
+      <form > 
+        <div class="form-section">
+          <div class="form-group">
+        <label>Équipement :</label>
+        <select [(ngModel)]="newPret.ideqpt" class="form-control long-select" name="equipement"
+        (change)="onEquipementChange()" required>
+          <option *ngFor="let e of equipements" [value]="e.idEqpt">{{ e.design }}</option>
+        </select> </div>
+      
+        <div class="form-group" *ngIf="uniteActuelle">
+          <label>Unité prêteuse:</label>
+          <input class="form-control" type="text" [value]="uniteActuelle.designation" disabled />
+        </div>
+        <div class="form-group" *ngIf="positionPhysique">
+          <label>Position Physique :</label>
+          <input class="form-control" type="text" [value]="positionPhysique" disabled />
+        </div>
+        
+        
+        <div class="form-group">
+        <label>Unité ciblée :</label>
+        <select [(ngModel)]="newPret.idunite" class="form-control long-select" name="unite" required>
+          <option *ngFor="let u of unites" [value]="u.idunite">{{ u.designation }}</option>
+        </select></div>
+        <div class="form-group">
+        <label>Date du prêt :</label>
+        <input type="date" class="form-control " [(ngModel)]="newPret.datepret" name="datepret" required />
+      </div>
+       <div class="form-group">
+        <label>Durée (jours) :</label>
+        <input type="number" class="form-control " [(ngModel)]="newPret.duree" name="duree" min="1" required />
+      </div>
+      <div class="form-group">
+        <label>Motif :</label>
+        <textarea [(ngModel)]="newPret.motif" name="motif" placeholder="Motif de la pret"></textarea>
+      </div>
+      
+      <div class="actions">
+        <button type="button" class="btn orange" (click)="addPret()">Enregistrer</button>
+        <button type="button" class="btn grey" (click)="closeForm()">Annuler</button>
+      </div>
+      </div>
+    </form>
+    </div></div>
+</div>
+<!-- Modal de déconnexion -->
+<div class="modal" *ngIf="showLogoutConfirm">
+  <div class="form">
+    <h3>Déconnexion</h3>
+    <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+    <div class="actions">
+      <button class="btn orange" (click)="confirmLogout()">Oui</button>
+      <button class="btn grey" (click)="cancelLogout()">Non</button>
+    </div>
+  </div>
+</div>

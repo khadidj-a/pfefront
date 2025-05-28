@@ -1,0 +1,300 @@
+<div class="topbar">
+  <div class="logo">
+    <img src="assets/logo-eng.jpg" alt="ENG Logo" />
+    <span class="site-name">Gestion des parcs des équipements</span>
+  </div>
+
+
+  <div class="menu-center">
+    <a class="menu-button" (click)="navigateTo('/dashboard')">Dashboard</a>
+    <div class="dropdown">
+      <button class="menu-button">Équipement</button>
+      <div class="dropdown-content">
+        <a href="/equipment">Table Équipement</a>
+        <a href="/fiche-equipement">Fiche Équipement</a>
+      </div>
+    </div>
+    <a class="menu-button" *ngIf="isAdminIT" (click)="navigateTo('/user-management')">Utilisateur</a>
+    <div class="dropdown">
+      <button class="menu-button">Mouvement</button>
+      <div class="dropdown-content">
+        <a href="/movements/pret">Prêt</a>
+        <a href="/reaffectation">Réaffectation</a>
+        <a href="/reforme">Réforme</a>
+        
+      </div>
+    </div>
+
+    <div class="dropdown" *ngIf="isAdminIT || isAdminMetier">
+      <button class="menu-button">Table de Codification</button>
+      <div class="dropdown-content"> 
+        <a href="/caracteristique">Caractéristique</a>
+        <a href="/categorie">Catégorie</a> 
+        <a href="/groupeidentique">Groupe Identique</a>  
+        <a href="/marque">Marque</a>
+        <a href="/organe">Organe</a>
+        <a href="/typeeq">Type d'équipement</a>
+        <a href="/unite">Unité</a>
+       
+      </div>
+    </div>
+  </div>
+
+
+  <div class="profile" (click)="profileOpen = !profileOpen">
+    <img class="profile-img" src="assets/user.png" alt="Profil utilisateur" />
+    <span class="profile-name">{{ user.nom }} {{ user.prenom }}</span>
+    <div class="profile-menu" *ngIf="profileOpen">
+  <div class="menu-username">{{ user.nom }} {{ user.prenom }}</div>
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</div>
+
+<div class="main-container">
+  <!-- Equipment Table Section -->
+  <div class="table-section">
+    <div class="table-header">
+      <h2 class="table-title">Liste des Équipements</h2>
+      <div class="search-container">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearch()"
+          placeholder="Rechercher un équipement..."
+          class="search-input"
+        >
+      </div>
+    </div>
+
+    <div class="loading-spinner" *ngIf="isLoading">
+      <div class="spinner"></div>
+    </div>
+
+    <table class="equipment-table" *ngIf="!isLoading && displayedEquipements.length > 0">
+      <thead>
+        <tr>
+          <th>Unité</th>
+          <th>Désignation</th>
+          <th>Code Eqp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of displayedEquipements" 
+            (click)="selectEquipement(item.idEqpt)"
+            [class.selected]="selectedEquipementId === item.idEqpt">
+          <td title="{{item.uniteDesignation || '-'}}">{{item.uniteDesignation || '-'}}</td>
+          <td title="{{item.design || '-'}}">{{item.design || '-'}}</td>
+          <td title="{{item.codeEqp || '-'}}">{{item.codeEqp || '-'}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && displayedEquipements.length === 0" class="no-data">
+      Aucun équipement trouvé
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="!isLoading && displayedEquipements.length > 0">
+      <span>Page {{currentPage}} sur {{totalPages}} ({{totalItems}} équipements)</span>
+      <div class="pagination-controls">
+        <button [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">&lt;</button>
+        <ng-container *ngFor="let page of getPageNumbers()">
+          <button 
+            [class.active]="page === currentPage"
+            (click)="changePage(page)">
+            {{ page }}
+          </button>
+        </ng-container>
+        <button [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">&gt;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipment Details Section -->
+  <div class="details-section">
+    <div class="fiche-title">Fiche Équipement</div>
+    <div class="fiche-badges-row">
+      <div class="code-display">{{ equipement?.codeEqp }}</div>
+      <div class="status-badge" [ngClass]="getStatusClass(equipement?.etat)">
+        {{ equipement?.etat }}
+      </div>
+    </div>
+
+    <div class="loading-spinner" *ngIf="isLoading">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="fiche-content" *ngIf="equipement && !isLoading">
+      <!-- Affectation Section -->
+      <div class="section affectation-section">
+        <h3>Affectation</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Unité</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ affectation?.designationUnite || equipement.uniteDesignation || '-' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">N° décision Affect</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ affectation?.num_decision_affectation || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Date d'affectation</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ (affectation?.dateaffec | date:'dd/MM/yyyy') || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">N° d'ordre</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ affectation?.num_ordre || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Position Physique</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.position_physique || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- General Information Section -->
+      <div class="section">
+        <h3>Informations Générales</h3>
+        <div class="info-grid">
+          <!-- Row 1 -->
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Désignation</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.design }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Marque</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.marqueNom || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Type</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.typeDesignation || '-' }}</span>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Catégorie</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.categorieDesignation || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Numéro de série</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.numserie || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Année de fabrication</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.anneeFabrication || '-' }}</span>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Date de mise en service</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.dateMiseService | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Date d'acquisition</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.dateAcquisition | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label-row">
+              <span class="label">Valeur d'acquisition</span>
+              <span class="colon">:</span>
+            </span>
+            <span class="value">{{ equipement.valeurAcquisition || '-' }} DH</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Caractéristiques and Organes Side by Side -->
+      <div class="side-by-side-sections">
+        <!-- Characteristics Section -->
+        <div class="section half-width">
+          <h3>Caractéristiques</h3>
+          <div class="caracteristiques-grid" *ngIf="caracteristiques.length > 0; else noCarac">
+            <div class="info-item" *ngFor="let carac of caracteristiques">
+              <label>{{ carac.nomcarac }}:</label>
+              <span class="value">{{ carac.valeur }}</span>
+            </div>
+          </div>
+          <ng-template #noCarac>
+            <div class="no-data">Aucune caractéristique</div>
+          </ng-template>
+        </div>
+
+        <!-- Organes Section -->
+        <div class="section half-width">
+          <h3>Organes</h3>
+          <div class="organes-grid" *ngIf="organes.length > 0; else noOrg">
+            <div class="info-item" *ngFor="let org of organes">
+              <label>{{ org.nomOrgane }}:</label>
+              <span class="value">{{ org.numserie || '-' }}</span>
+              <!-- Debug info -->
+              <span style="display: none">{{ org | json }}</span>
+            </div>
+          </div>
+          <ng-template #noOrg>
+            <div class="no-data">Aucun organe</div>
+          </ng-template>
+        </div>
+      </div>
+      <!-- Observation Section -->
+      <div class="section">
+        <h3>Observations</h3>
+        <div class="observation-container">
+          <div class="observation-display">
+            {{ equipement?.observation || '-' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+   <div class="modall" *ngIf="showLogoutConfirm">
+    <div class="formm">
+      <h3>Déconnexion</h3>
+      <p>Êtes-vous sûr de vouloir vous déconnecter ?</p>
+      <div class="actions">
+        <button class="btn orange" (click)="confirmLogout()">Oui</button>
+        <button class="btn grey" (click)="cancelLogout()">Non</button>
+      </div>
+    </div>
+  </div>

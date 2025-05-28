@@ -1,0 +1,20 @@
+<div class="unauthorized-container">
+    <div class="unauthorized-content">
+      <div class="icon-container">
+        ⚠️
+      </div>
+      
+      <h1>Accès non autorisé</h1>
+      
+      <p>Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
+      
+      <div *ngIf="userRole" class="role-info">
+        <p>Votre rôle actuel: <strong>{{ userRole }}</strong></p>
+      </div>
+      
+      <button class="btn btn-primary" (click)="goBack()">
+        Retour à l'accueil
+      </button>
+    </div>
+  </div>
+  
